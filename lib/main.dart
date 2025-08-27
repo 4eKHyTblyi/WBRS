@@ -167,15 +167,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   updateUserStatus(value) async {
     if(!_isRegistrationEnd) return;
-    await firebaseFirestore
-        .collection('users')
-        .doc(firebaseAuth.currentUser!.uid)
-        .update({'online': value});
-    if (!value) {
+    try {
       await firebaseFirestore
           .collection('users')
           .doc(firebaseAuth.currentUser!.uid)
-          .update({'lastOnlineTS': DateTime.now()});
+          .update({'online': value});
+      if (!value) {
+        await firebaseFirestore
+            .collection('users')
+            .doc(firebaseAuth.currentUser!.uid)
+            .update({'lastOnlineTS': DateTime.now()});
+      }
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка обновления статуса пользователя',
+        information: ['статус: $value'],
+      );
     }
   }
 
