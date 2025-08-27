@@ -12,8 +12,6 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In Android, build-name is used as versionName while build-number used as versionCode.
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
 # In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.6+12
@@ -30,6 +28,35 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+<<<<<<< Updated upstream
+=======
+  shared_preferences: 
+  image_picker:
+  file_picker:
+  random_string:
+  firebase_storage:
+  url_launcher:
+  firebase_messaging:
+  flutter_bloc:
+  equatable:
+  firebase_core_platform_interface:
+  google_fonts:
+  curved_navigation_bar: 
+  firebase_in_app_messaging:
+  platform_device_id:
+  flutter_local_notifications:
+  http:
+  flutter_app_badger:
+  font_awesome_flutter:
+  webview_flutter:
+  flutter_svg:
+  connectivity_plus:
+  cached_network_image:
+  firebase_crashlytics:
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

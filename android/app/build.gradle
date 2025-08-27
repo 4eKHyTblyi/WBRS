@@ -25,6 +25,15 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0.3'
 }
 
+<<<<<<< Updated upstream
+=======
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+>>>>>>> Stashed changes
 android {
     namespace "com.lrs"
     compileSdk flutter.compileSdkVersion
@@ -81,6 +90,22 @@ flutter {
 }
 
 dependencies {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     implementation 'androidx.multidex:multidex:2.0.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+=======
+=======
+>>>>>>> Stashed changes
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-inappmessaging-display'
+    implementation 'com.google.firebase:firebase-core'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-analytics'
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 }

@@ -1,3 +1,21 @@
+<<<<<<< Updated upstream
+=======
+buildscript {
+    ext.kotlin_version = '1.7.10'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.13'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
+    }
+}
+
+>>>>>>> Stashed changes
 allprojects {
     repositories {
         google()

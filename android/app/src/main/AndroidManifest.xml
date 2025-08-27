@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -7,6 +8,21 @@
         android:icon="@mipmap/ic_launcher"
         android:extractNativeLibs="true"
         android:allowBackup="false">
+=======
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.messenger">
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+   <application
+        android:label="Знакомства"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon">
+>>>>>>> Stashed changes
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,9 +40,16 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+<<<<<<< Updated upstream
               <meta-data
                 android:name="io.flutter.embedding.android.EnableImpeller"
                 android:value="true" />
+=======
+            <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="wbrs"
+            />
+>>>>>>> Stashed changes
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

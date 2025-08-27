@@ -12,6 +12,8 @@ import 'package:wbrs/app/widgets/widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -140,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                                 // check tha validation
                                 validator: (val) {
                                   return RegExp(
-                                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                           .hasMatch(val!)
                                       ? null
                                       : 'Введите корректный email';
@@ -207,7 +209,22 @@ class _LoginPageState extends State<LoginPage> {
                                               activeColor: const Color.fromARGB(
                                                   255, 247, 175, 21),
                                               value: _isChecked,
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
                                               onChanged: ((value) {}),
+=======
+=======
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+                                              onChanged: _isLoading
+                                                  ? null
+                                                  : ((value) {
+                                                      _handleRemeberme(
+                                                          value ?? false);
+                                                    }),
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+=======
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
                                             ))),
                                     const SizedBox(width: 10.0),
                                     const Text('Запомнить меня',
@@ -235,6 +252,8 @@ class _LoginPageState extends State<LoginPage> {
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
                                   onPressed: () async {
                                     try {
                                       final result =
@@ -259,6 +278,24 @@ class _LoginPageState extends State<LoginPage> {
                                       }
                                     }
                                   },
+=======
+=======
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () async {
+                                          final connectivityResult = await Connectivity().checkConnectivity();
+                                          if (connectivityResult == ConnectivityResult.none) {
+                                            showSnackbar(context, Colors.red,
+                                                'Нет подключения к интернету');
+                                            return;
+                                          }
+                                          login();
+                                        },
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+=======
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
                                 ),
                               ),
                               const SizedBox(
@@ -292,7 +329,7 @@ class _LoginPageState extends State<LoginPage> {
                                             TextFormField(
                                               validator: (val) {
                                                 return RegExp(
-                                                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                                         .hasMatch(val!)
                                                     ? null
                                                     : 'Введите корректный email';
@@ -318,12 +355,22 @@ class _LoginPageState extends State<LoginPage> {
                                                       Navigator.pop(context);
                                                     }
                                                   } else {
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
                                                     if (context.mounted) {
                                                       showSnackbar(
                                                           context,
                                                           Colors.red,
                                                           'Введите email.');
                                                     }
+=======
+                                                    showSnackbar(context,
+                                                        Colors.red, 'Введите email.');
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+=======
+                                                    showSnackbar(context,
+                                                        Colors.red, 'Введите email.');
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
                                                   }
                                                 },
                                                 child: const Text(
@@ -363,6 +410,8 @@ class _LoginPageState extends State<LoginPage> {
           authService
               .loginWithUserNameAndPassword(
               _emailController.text, _passwordController.text)
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
+<<<<<<< Updated upstream:lib/presentation/screens/auth/login_screen/login_page.dart
               .then((value) async {
             if (value == true) {
               selectedIndex = 1;
@@ -399,6 +448,27 @@ class _LoginPageState extends State<LoginPage> {
               });
               showSnackbar(context, Colors.red, value);
             }
+=======
+=======
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
+          .then((value) async {
+        if (value == true) {
+          selectedIndex = 1;
+          nextScreenReplace(context, const HomePage());
+        } else {
+          final String code = value?.toString() ?? 'unexpected-error';
+          String message = 'Ошибка входа: $code';
+          if (code == 'user-not-found') message = 'Пользователь не найден';
+          if (code == 'wrong-password') message = 'Неверный пароль';
+          if (code == 'invalid-email') message = 'Неверный формат email';
+          if (code == 'user-disabled') message = 'Пользователь отключен';
+          if (code == 'network-request-failed') message = 'Ошибка сети';
+          if (code == 'too-many-requests') message = 'Слишком много попыток. Попробуйте позже';
+          await FirebaseCrashlytics.instance.log('Login failed: $code');
+          showSnackbar(context, Colors.red, message);
+          setState(() {
+            _isLoading = false;
+>>>>>>> Stashed changes:lib/pages/auth/login_page.dart
           });
         } on Exception catch (e) {
           showSnackbar(context, Colors.red, e);

@@ -21,8 +21,18 @@ import 'package:wbrs/shared/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+<<<<<<< Updated upstream
 import 'package:wbrs/app/widgets/splash.dart';
 import 'package:wbrs/app/widgets/widgets.dart';
+=======
+import 'package:messenger/widgets/check_internet.dart';
+import 'package:messenger/widgets/widgets.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 import 'presentation/screens/list_of_meets/show/about_meet.dart';
 import 'presentation/screens/chat_screen/chatscreen.dart';
@@ -112,12 +122,28 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   FlutterError.onError = (details) {
     FirebaseCrashlytics.instance
         .recordError(details.exceptionAsString(), details.stack, fatal: true);
   };
   FirebaseAuth.instanceFor(app: app);
   await SharedPreferences.getInstance();
+=======
+=======
+>>>>>>> Stashed changes
+  // Crashlytics setup
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   await FirebaseMessaging.instance.getInitialMessage();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -150,8 +176,16 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool _isSignedIn = false;
+=======
+class _MyAppState extends State<MyApp> {
+>>>>>>> Stashed changes
+=======
+class _MyAppState extends State<MyApp> {
+>>>>>>> Stashed changes
   bool _isRegistrationEnd = false;
   bool _loading = true;
   bool _hasInternet = true;
@@ -210,6 +244,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     initFunction();
     listenNotify(context);
     WidgetsBinding.instance.addObserver(this);
@@ -277,10 +313,41 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     globalBalance = doc.get('balance');
     group = doc.get('группа');
     initNotify();
+=======
+=======
+>>>>>>> Stashed changes
+    selectedIndex = 1;
+    checkInternet();
+    if (Platform.isIOS) {
+      firebaseMessaging.requestPermission();
+    }
+  }
+
+  Future<void> loadUserDoc() async {
+    if (FirebaseAuth.instance.currentUser == null) return;
+    try {
+      doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      if (doc.exists && doc.data() != null) {
+        setState(() {
+          _isRegistrationEnd = doc.get('isRegistrationEnd') ?? true;
+        });
+      }
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'loadUserDoc');
+    }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   }
 
   checkInternet() async {
     try {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         return true;
@@ -390,6 +457,143 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           );
         });
       });
+=======
+      final connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.none) {
+        if (mounted) {
+          nextScreen(context, const CheckInternetPage());
+        }
+        return false;
+      }
+      return true;
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'checkInternet');
+      return true;
+    }
+  }
+
+=======
+      final connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.none) {
+        if (mounted) {
+          nextScreen(context, const CheckInternetPage());
+        }
+        return false;
+      }
+      return true;
+    } catch (e, st) {
+      FirebaseCrashlytics.instance.recordError(e, st, reason: 'checkInternet');
+      return true;
+    }
+  }
+
+>>>>>>> Stashed changes
+  @override
+  Widget build(BuildContext context) {
+    TextTheme tema = GoogleFonts.robotoTextTheme(Theme.of(context).textTheme);
+    return MaterialApp(
+      theme: ThemeData(
+          fontFamily: 'Times New Roman',
+          primaryColor: Constants().primaryColor,
+          scaffoldBackgroundColor: Colors.white,
+          textTheme: tema),
+      debugShowCheckedModeBanner: false,
+      routes: {
+        'profile': (context) {
+          if (doc == null || !doc.exists) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+          return ProfilePage(
+            group: getUserGroup(),
+            email: FirebaseAuth.instance.currentUser!.email.toString(),
+            userName: FirebaseAuth.instance.currentUser!.displayName.toString(),
+            about: doc.get('about') ?? '',
+            age: doc.get('age')?.toString() ?? '0',
+            rost: doc.get('rost') ?? '',
+            hobbi: doc.get('hobbi') ?? '',
+            city: doc.get('city') ?? '',
+            deti: doc.get('deti') ?? false,
+            pol: doc.get('pol') ?? '',
+          );
+        }
+      },
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          final user = snapshot.data;
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (user == null) {
+              return const LoginPage();
+            } else {
+              // after sign-in, ensure we have latest user doc data
+              return FutureBuilder(
+                future: loadUserDoc(),
+                builder: (context, snap) {
+                  return const HomePage();
+                },
+              );
+            }
+          }
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        },
+      ),
+    );
+  }
+
+  void loadFCM() async {
+    if (!kIsWeb) {
+      var channel = const AndroidNotificationChannel(
+        'high_importance_channel', // id
+        'High Importance Notifications',
+        'High Importance Notifications', // title
+        importance: Importance.high,
+        enableVibration: true,
+      );
+
+      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+  }
+
+  void listenFCM() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      if (!mounted) return;
+      
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null && !kIsWeb) {
+        try {
+          await flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                icon: 'launch_background',
+              ),
+            ),
+          );
+        } catch (e, st) {
+          FirebaseCrashlytics.instance.recordError(e, st, reason: 'listenFCM');
+        }
+      }
+>>>>>>> Stashed changes
     });
   }
 }
