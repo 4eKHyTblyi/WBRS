@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import '../app/helper/global.dart';
 import '../app/helper/helper_function.dart';
@@ -15,7 +16,7 @@ class DatabaseService {
   final CollectionReference groupCollection =
       firebaseFirestore.collection('meets');
 
-  Future savingUserDataAfterRegister(
+  Future<void> savingUserDataAfterRegister(
       String fullName,
       String email,
       String profilePic,
@@ -26,43 +27,63 @@ class DatabaseService {
       String hobbi,
       String about,
       String pol) async {
-    firebaseAuth.currentUser!.updateDisplayName(fullName);
-    firebaseAuth.currentUser!.updateEmail(email);
-    return await userCollection.doc(firebaseAuth.currentUser!.uid).set({
-      'fullName': fullName,
-      'email': email,
-      'balance': 27,
-      'profilePic': profilePic,
-      'uid': uid,
-      'age': age,
-      'rost': rost,
-      'about': about,
-      'hobbi': hobbi,
-      'deti': deti,
-      'temperament': '',
-      'uid': firebaseAuth.currentUser!.uid,
-      'city': city,
-      'images': [],
-      'pol': pol,
-      'группа': '',
-      'isUnVisible': false,
-      'lastOnlineTS': DateTime.now(),
-      'online': true,
-      'status': 'active'
-    });
+    try {
+      firebaseAuth.currentUser!.updateDisplayName(fullName);
+      firebaseAuth.currentUser!.updateEmail(email);
+      await userCollection.doc(firebaseAuth.currentUser!.uid).set({
+        'fullName': fullName,
+        'email': email,
+        'balance': 27,
+        'profilePic': profilePic,
+        'uid': uid,
+        'age': age,
+        'rost': rost,
+        'about': about,
+        'hobbi': hobbi,
+        'deti': deti,
+        'temperament': '',
+        'uid': firebaseAuth.currentUser!.uid,
+        'city': city,
+        'images': [],
+        'pol': pol,
+        'группа': '',
+        'isUnVisible': false,
+        'lastOnlineTS': DateTime.now(),
+        'online': true,
+        'status': 'active'
+      });
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка сохранения данных пользователя после регистрации',
+        information: ['email: $email', 'имя: $fullName'],
+      );
+      rethrow;
+    }
   }
 
-  Future updateUserData(String fullName, String email, int age, String about,
+  Future<void> updateUserData(String fullName, String email, int age, String about,
       String hobbi, String city, bool deti) async {
-    return await userCollection.doc(firebaseAuth.currentUser!.uid).update({
-      'fullName': fullName,
-      'email': email,
-      'age': age,
-      'about': about,
-      'hobbi': hobbi,
-      'city': city,
-      'deti': deti
-    });
+    try {
+      await userCollection.doc(firebaseAuth.currentUser!.uid).update({
+        'fullName': fullName,
+        'email': email,
+        'age': age,
+        'about': about,
+        'hobbi': hobbi,
+        'city': city,
+        'deti': deti
+      });
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка обновления данных пользователя',
+        information: ['email: $email', 'имя: $fullName'],
+      );
+      rethrow;
+    }
   }
 
   // getting user data
