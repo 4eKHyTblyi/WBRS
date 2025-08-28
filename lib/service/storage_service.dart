@@ -18,7 +18,6 @@ class StorageService {
       await ref.putFile(file);
       final url = await ref.getDownloadURL();
 
-      // Update Firestore and Auth profile
       await _db.collection('users').doc(uid).update({'profilePic': url});
       await _auth.currentUser?.updatePhotoURL(url);
 

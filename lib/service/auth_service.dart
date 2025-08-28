@@ -11,7 +11,6 @@ class AuthService {
       await firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password)
           .timeout(const Duration(seconds: 10));
-      // Success
       await HelperFunctions.saveUserLoggedInStatus(true);
       return 'ok';
     } on FirebaseAuthException catch (e) {
@@ -21,7 +20,7 @@ class AuthService {
         reason: 'Ошибка входа в систему',
         information: ['email: $email', 'код_ошибки: ${e.code}'],
       );
-      return e.code; // e.g. user-not-found, wrong-password, network-request-failed
+      return e.code;
     } on TimeoutException catch (e) {
       FirebaseCrashlytics.instance.recordError(
         e,
@@ -57,7 +56,7 @@ class AuthService {
         reason: 'Ошибка регистрации пользователя',
         information: ['email: $email', 'имя: $fullName', 'код_ошибки: ${e.code}'],
       );
-      return e.code; // weak-password, email-already-in-use, network-request-failed, etc
+      return e.code;
     } on TimeoutException catch (e) {
       FirebaseCrashlytics.instance.recordError(
         e,

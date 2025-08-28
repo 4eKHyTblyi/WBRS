@@ -207,7 +207,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   initFunction() async {
     await checkInternet();
     selectedIndex = 1;
-    // Listen to actual auth state changes
     FirebaseAuth.instance.authStateChanges().listen((user) async {
       if (user == null) {
         setState(() {
