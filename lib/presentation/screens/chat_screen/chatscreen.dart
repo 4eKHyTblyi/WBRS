@@ -171,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 firebaseFirestore
                                     .collection('chats')
                                     .doc(widget.chatId)
-                                    .collection('chats')
+                                    .collection('messages')
                                     .doc(ds.id)
                                     .update({'isRead': true});
                               }
@@ -275,6 +275,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void getAndSetMessages() async {
     messageStream = await DatabaseService().getChatRoomMessages(widget.chatId);
+    setState(() {});
   }
 
   void doThisOnLaunch() async {
@@ -495,8 +496,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 TextStyle(color: white70)),
                                       )),
                                   GestureDetector(
-                                    onTap: () {
-                                      addMessage(true, 'text');
+                                    onTap: () async {
+                                      if (messageTextEdittingController.text.trim().isEmpty) return;
+                                      try {
+                                        await addMessage(true, 'text');
+                                      } catch (e) {
+                                        if (!mounted) return;
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Не удалось отправить сообщение')),
+                                        );
+                                      }
                                     },
                                     child: Icon(
                                       Icons.send,
