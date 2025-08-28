@@ -207,22 +207,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   initFunction() async {
     await checkInternet();
     selectedIndex = 1;
-    // Listen to actual auth state changes
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
-      if (user == null) {
-        setState(() {
-          _isSignedIn = false;
-          _loading = false;
-        });
-        return;
-      }
-      setState(() {
-        _isSignedIn = true;
-      });
-      await getUserInfo();
-      await getUserRegistrationStatus();
+    await getUserLoggedInStatus();
+    if (_isSignedIn) {
       updateUserStatus(true);
-    });
+      getUserInfo();
+      getUserRegistrationStatus();
+    }
     firebaseMessaging.requestPermission();
   }
 
@@ -313,6 +303,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
   }
 
+  getUserLoggedInStatus() async {
+    if (firebaseAuth.currentUser != null) {
+      DocumentSnapshot data = await firebaseFirestore
+          .collection('users')
+          .doc(firebaseAuth.currentUser!.uid)
+          .get();
+
+      if (data.exists) {
+        if (data.get('status') == 'blocked') {
+          showSnackbar(context, Colors.red, 'Ваш аккаунт заблокирован');
+          await firebaseAuth.signOut();
+          nextScreenReplace(context, const LoginPage());
+        }
+      } else {
+        if(firebaseAuth.currentUser != null){
+          await firebaseAuth.currentUser!.delete();
+        }
+        showSnackbar(context, Colors.red, 'Ваш аккаунт удален');
+        nextScreenReplace(context, const LoginPage());
+      }
+    }
+    await HelperFunctions.getUserLoggedInStatus().then((value) {
+      if (value != null) {
+        setState(() {
+          _isSignedIn = value;
+          if(firebaseAuth.currentUser == null){
+            _isSignedIn = false;
+          }
+        });
+      }
+    });
+  }
+
   getUserRegistrationStatus() async {
     var collection = await firebaseFirestore
         .collection('users')
@@ -340,6 +363,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return LayoutBuilder(builder: (context, constraints) {
       return OrientationBuilder(builder: (context, orientation) {
         return Sizer(builder: (context, orientation, deviceType) {
+          // return MaterialApp.router(
+          //   routerConfig: router,
+          // );
           return MaterialApp(
             theme: ThemeData(
                 fontFamily: 'Roboto',
@@ -365,10 +391,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             },
             home: _isSignedIn
                 ? _loading
-                    ? const SplashScreen()
-                    : _isRegistrationEnd
-                        ? const HomePage()
-                        : const FirstGroupRed()
+                ? const SplashScreen()
+                : _isRegistrationEnd
+                ? const HomePage()
+                : const FirstGroupRed()
                 : const LoginPage()
           );
         });

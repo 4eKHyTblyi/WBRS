@@ -245,24 +245,24 @@ class _RegisterPageState extends State<RegisterPage> {
       });
       await authService
           .registerUserWithEmailAndPassword(fullName, email, password)
-          .then((code) async {
-        if (code == 'ok') {
+          .then((value) async {
+        if (value == true) {
+          // saving the shared preference state
           await HelperFunctions.saveUserLoggedInStatus(true);
           await HelperFunctions.saveUserEmailSF(email);
           await HelperFunctions.saveUserNameSF(fullName);
           firebaseAuth.currentUser?.updateDisplayName(fullName);
           nextScreenReplace(context, const AboutUserWriting());
         } else {
+          try {
+            await InternetAddress.lookup('example.com');
+          } on Exception catch (_) {
+            return showSnackbar(context, Colors.red, 'Нет интернет соединения');
+          }
           setState(() {
             _isLoading = false;
           });
-          final friendly = {
-            'email-already-in-use': 'Email уже используется',
-            'weak-password': 'Слабый пароль',
-            'network-request-failed': 'Нет интернет соединения',
-            'timeout': 'Превышено время ожидания',
-          };
-          showSnackbar(context, Colors.red, friendly[code] ?? 'Ошибка регистрации');
+          showSnackbar(context, Colors.red, value);
         }
       });
     }

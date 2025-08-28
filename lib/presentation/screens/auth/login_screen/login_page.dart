@@ -235,8 +235,29 @@ class _LoginPageState extends State<LoginPage> {
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
-                                  onPressed: _isLoading ? null : () async {
-                                    login();
+                                  onPressed: () async {
+                                    try {
+                                      final result =
+                                          await InternetAddress.lookup(
+                                              'example.com');
+                                      if (result.isNotEmpty &&
+                                          result[0].rawAddress.isNotEmpty) {
+                                        login();
+                                      }
+                                    } on SocketException catch (_) {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                      if (context.mounted) {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                const AlertDialog(
+                                                  content: Text(
+                                                      'Нет соединения с интернетом'),
+                                                ));
+                                      }
+                                    }
                                   },
                                 ),
                               ),
@@ -342,8 +363,8 @@ class _LoginPageState extends State<LoginPage> {
           authService
               .loginWithUserNameAndPassword(
               _emailController.text, _passwordController.text)
-              .then((code) async {
-            if (code == 'ok') {
+              .then((value) async {
+            if (value == true) {
               selectedIndex = 1;
               await HelperFunctions.saveUserLoggedInStatus(true);
               if (context.mounted) {
@@ -376,13 +397,7 @@ class _LoginPageState extends State<LoginPage> {
               setState(() {
                 _isLoading = false;
               });
-              final friendly = {
-                'user-not-found': 'Пользователь не найден',
-                'wrong-password': 'Неверный пароль',
-                'network-request-failed': 'Нет интернет соединения',
-                'timeout': 'Превышено время ожидания',
-              };
-              showSnackbar(context, Colors.red, friendly[code] ?? 'Ошибка входа');
+              showSnackbar(context, Colors.red, value);
             }
           });
         } on Exception catch (e) {
