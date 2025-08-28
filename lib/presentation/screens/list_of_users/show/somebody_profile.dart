@@ -519,9 +519,8 @@ class _SomebodyProfileState extends State<SomebodyProfile> {
                                               ChatScreen(
                                                 chatId: chatID,
                                                 chatWithUsername: widget.name,
-                                                id: FirebaseAuth
-                                                    .instance.currentUser!.uid,
-                                                photoUrl: widget.photoUrl,
+                                                id: widget.uid,
+                                                photoUrl: widget.userInfo['profilePic'] ?? widget.photoUrl,
                                               ));
                                         }
                                       });

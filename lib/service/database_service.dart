@@ -155,22 +155,42 @@ class DatabaseService {
   }
 
   // send message
-  sendMessage(String chatId, Map<String, dynamic> chatMessageData) async {
-    chatCollection.doc(chatId).collection('messages').add(chatMessageData);
-    chatCollection.doc(chatId).update({
-      'recentMessage': chatMessageData['message'],
-      'recentMessageSender': chatMessageData['sender'],
-      'recentMessageTime': chatMessageData['time'].toString(),
-    });
+  Future<void> sendMessage(String chatId, Map<String, dynamic> chatMessageData) async {
+    try {
+      await chatCollection.doc(chatId).collection('messages').add(chatMessageData);
+      await chatCollection.doc(chatId).update({
+        'recentMessage': chatMessageData['message'],
+        'recentMessageSender': chatMessageData['sender'],
+        'recentMessageTime': chatMessageData['time'].toString(),
+      });
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка отправки сообщения',
+        information: ['chatId: $chatId'],
+      );
+      rethrow;
+    }
   }
 
-  sendMessageGroup(String chatId, Map<String, dynamic> chatMessageData) async {
-    groupCollection.doc(chatId).collection('messages').add(chatMessageData);
-    groupCollection.doc(chatId).update({
-      'recentMessage': chatMessageData['message'],
-      'recentMessageSender': chatMessageData['name'],
-      'recentMessageTime': chatMessageData['time'].toString(),
-    });
+  Future<void> sendMessageGroup(String chatId, Map<String, dynamic> chatMessageData) async {
+    try {
+      await groupCollection.doc(chatId).collection('messages').add(chatMessageData);
+      await groupCollection.doc(chatId).update({
+        'recentMessage': chatMessageData['message'],
+        'recentMessageSender': chatMessageData['name'],
+        'recentMessageTime': chatMessageData['time'].toString(),
+      });
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка отправки сообщения в группу',
+        information: ['chatId: $chatId'],
+      );
+      rethrow;
+    }
   }
 
   Future<Stream<QuerySnapshot>> getUserByUserName(String username) async {
@@ -219,7 +239,7 @@ class DatabaseService {
     return firebaseFirestore
         .collection('chats')
         .doc(chatRoomId)
-        .collection('chats')
+        .collection('messages')
         .orderBy('ts', descending: true)
         .snapshots();
   }
@@ -259,12 +279,22 @@ class DatabaseService {
   }
 
   Future addMessage(String chatRoomId, String messageId, messageInfoMap) async {
-    return firebaseFirestore
-        .collection('chats')
-        .doc(chatRoomId)
-        .collection('chats')
-        .doc(messageId)
-        .set(messageInfoMap);
+    try {
+      return firebaseFirestore
+          .collection('chats')
+          .doc(chatRoomId)
+          .collection('messages')
+          .doc(messageId)
+          .set(messageInfoMap);
+    } catch (e) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Ошибка записи сообщения',
+        information: ['chatRoomId: $chatRoomId', 'messageId: $messageId'],
+      );
+      rethrow;
+    }
   }
 
   updateLastMessageSend(String chatRoomId, lastMessageInfoMap) {
