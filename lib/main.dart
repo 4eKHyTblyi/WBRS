@@ -10,6 +10,8 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wbrs/app/helper/helper_function.dart';
@@ -48,19 +50,27 @@ listenNotify(context) async {
     );
 
     AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails('wbrs', 'wbrs',
-            importance: Importance.max,
-            styleInformation: bigTextStyleInformation,
-            priority: Priority.max,
-            playSound: true);
+        AndroidNotificationDetails(
+          'wbrs',
+          'wbrs',
+          importance: Importance.max,
+          styleInformation: bigTextStyleInformation,
+          priority: Priority.max,
+          playSound: true,
+        );
 
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidNotificationDetails);
+    NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidNotificationDetails,
+    );
 
     try {
-      await flutterLocalNotificationsPlugin.show(0, message.notification?.title,
-          message.notification?.body, platformChannelSpecifics,
-          payload: message.notification!.body);
+      await flutterLocalNotificationsPlugin.show(
+        0,
+        message.notification?.title,
+        message.notification?.body,
+        platformChannelSpecifics,
+        payload: message.notification!.body,
+      );
     } on Exception catch (e) {
       showSnackbar(context, Colors.red, e);
     }
@@ -70,25 +80,29 @@ listenNotify(context) async {
     Map body = jsonDecode(message.data['payload']);
     if (body['isChat'] == true) {
       nextScreenReplace(
-          context,
-          ChatScreen(
-            chatWithUsername: body['chatWith'],
-            photoUrl: body['photoUrl'],
-            id: body['id'],
-            chatId: body['chatId'],
-          ));
+        context,
+        ChatScreen(
+          chatWithUsername: body['chatWith'],
+          photoUrl: body['photoUrl'],
+          id: body['id'],
+          chatId: body['chatId'],
+        ),
+      );
     } else {
-      body['users'] =
-          body['users'].toString().replaceAll('[', '').replaceAll(']', '');
+      body['users'] = body['users']
+          .toString()
+          .replaceAll('[', '')
+          .replaceAll(']', '');
       List users = body['users'].toString().split(',');
       nextScreenReplace(
-          context,
-          AboutMeet(
-            id: body['groupId'],
-            users: users,
-            name: body['groupName'],
-            is_user_join: body['isUserJoin'].toString() == 'true',
-          ));
+        context,
+        AboutMeet(
+          id: body['groupId'],
+          users: users,
+          name: body['groupName'],
+          is_user_join: body['isUserJoin'].toString() == 'true',
+        ),
+      );
     }
   });
 }
@@ -96,10 +110,9 @@ listenNotify(context) async {
 migrate() {
   firebaseFirestore.collection('users').get().then((value) {
     for (var element in value.docs) {
-      firebaseFirestore
-          .collection('users')
-          .doc(element.id)
-          .update({'chatWithId': ''});
+      firebaseFirestore.collection('users').doc(element.id).update({
+        'chatWithId': '',
+      });
     }
   });
 }
@@ -113,8 +126,11 @@ void main() async {
   );
 
   FlutterError.onError = (details) {
-    FirebaseCrashlytics.instance
-        .recordError(details.exceptionAsString(), details.stack, fatal: true);
+    FirebaseCrashlytics.instance.recordError(
+      details.exceptionAsString(),
+      details.stack,
+      fatal: true,
+    );
   };
   FirebaseAuth.instanceFor(app: app);
   await SharedPreferences.getInstance();
@@ -131,15 +147,15 @@ void main() async {
       AndroidInitializationSettings('@mipmap/ic_launcher');
   const DarwinInitializationSettings initializationSettingsIOS =
       DarwinInitializationSettings(
-    requestAlertPermission: true,
-    requestBadgePermission: true,
-    requestSoundPermission: true,
-  );
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
   const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
   );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(const MyApp());
 }
 
@@ -166,7 +182,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   var doc;
 
   updateUserStatus(value) async {
-    if(!_isRegistrationEnd) return;
+    if (!_isRegistrationEnd) return;
     try {
       await firebaseFirestore
           .collection('users')
@@ -196,7 +212,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print(_isRegistrationEnd);
     if (state != AppLifecycleState.resumed) {
       updateUserStatus(false);
     } else {
@@ -205,7 +220,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   initFunction() async {
-    await checkInternet();
+    //await checkInternet();
     selectedIndex = 1;
     await getUserLoggedInStatus();
     if (_isSignedIn) {
@@ -237,22 +252,27 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       );
 
       AndroidNotificationDetails androidNotificationDetails =
-          AndroidNotificationDetails('wbrs', 'wbrs',
-              importance: Importance.max,
-              styleInformation: bigTextStyleInformation,
-              priority: Priority.max,
-              playSound: true);
+          AndroidNotificationDetails(
+            'wbrs',
+            'wbrs',
+            importance: Importance.max,
+            styleInformation: bigTextStyleInformation,
+            priority: Priority.max,
+            playSound: true,
+          );
 
-      NotificationDetails platformChannelSpecifics =
-          NotificationDetails(android: androidNotificationDetails);
+      NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidNotificationDetails,
+      );
 
       try {
         await flutterLocalNotificationsPlugin.show(
-            0,
-            message.notification?.title,
-            message.notification?.body,
-            platformChannelSpecifics,
-            payload: message.notification?.body);
+          0,
+          message.notification?.title,
+          message.notification?.body,
+          platformChannelSpecifics,
+          payload: message.notification?.body,
+        );
       } on Exception catch (e) {
         showSnackbar(context, Colors.red, e);
       }
@@ -260,11 +280,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     firebaseFirestore
         .collection('users')
         .doc(firebaseAuth.currentUser!.uid)
-        .update(
-      {
-        'chatWithId': '',
-      },
-    );
+        .update({'chatWithId': ''});
   }
 
   Future<String> getAndroidVersion() async {
@@ -297,7 +313,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     } on SocketException catch (_) {
       setState(() {
         _hasInternet = false;
-        print(_hasInternet);
       });
       return false;
     }
@@ -317,7 +332,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           nextScreenReplace(context, const LoginPage());
         }
       } else {
-        if(firebaseAuth.currentUser != null){
+        if (firebaseAuth.currentUser != null) {
           await firebaseAuth.currentUser!.delete();
         }
         showSnackbar(context, Colors.red, 'Ваш аккаунт удален');
@@ -328,7 +343,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (value != null) {
         setState(() {
           _isSignedIn = value;
-          if(firebaseAuth.currentUser == null){
+          if (firebaseAuth.currentUser == null) {
             _isSignedIn = false;
           }
         });
@@ -342,7 +357,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         .doc(firebaseAuth.currentUser!.uid)
         .get();
 
-    if(collection.data()!.containsKey('isRegistrationEnd')){
+    if (collection.data()!.containsKey('isRegistrationEnd')) {
       _isRegistrationEnd = await collection.get('isRegistrationEnd');
 
       if (_isRegistrationEnd) {
@@ -350,7 +365,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           _loading = false;
         });
       }
-    } else{
+    } else {
       setState(() {
         _loading = false;
       });
@@ -360,45 +375,50 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     TextTheme tema = GoogleFonts.latoTextTheme(Theme.of(context).textTheme);
-    return LayoutBuilder(builder: (context, constraints) {
-      return OrientationBuilder(builder: (context, orientation) {
-        return Sizer(builder: (context, orientation, deviceType) {
-          // return MaterialApp.router(
-          //   routerConfig: router,
-          // );
-          return MaterialApp(
-            theme: ThemeData(
-                fontFamily: 'Roboto',
-                primaryColor: Constants().primaryColor,
-                scaffoldBackgroundColor: Colors.white,
-                textTheme: tema),
-            debugShowCheckedModeBanner: false,
-            routes: {
-              'profile': (context) {
-                return ProfilePage(
-                  group: getUserGroup(),
-                  email: firebaseAuth.currentUser!.email.toString(),
-                  userName: firebaseAuth.currentUser!.displayName.toString(),
-                  about: doc.get('about'),
-                  age: doc.get('age').toString(),
-                  rost: doc.get('rost'),
-                  hobbi: doc.get('hobbi'),
-                  city: doc.get('city'),
-                  deti: doc.get('deti'),
-                  pol: doc.get('pol'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return OrientationBuilder(
+          builder: (context, orientation) {
+            return Sizer(
+              builder: (context, orientation, deviceType) {
+                return MaterialApp(
+                  theme: ThemeData(
+                    fontFamily: 'Roboto',
+                    primaryColor: Constants().primaryColor,
+                    scaffoldBackgroundColor: Colors.white,
+                    textTheme: tema,
+                  ),
+                  debugShowCheckedModeBanner: false,
+                  routes: {
+                    'profile': (context) {
+                      return ProfilePage(
+                        group: getUserGroup(),
+                        email: firebaseAuth.currentUser!.email.toString(),
+                        userName: firebaseAuth.currentUser!.displayName
+                            .toString(),
+                        about: doc.get('about'),
+                        age: doc.get('age').toString(),
+                        rost: doc.get('rost'),
+                        hobbi: doc.get('hobbi'),
+                        city: doc.get('city'),
+                        deti: doc.get('deti'),
+                        pol: doc.get('pol'),
+                      );
+                    },
+                  },
+                  home: _isSignedIn
+                      ? _loading
+                            ? const SplashScreen()
+                            : _isRegistrationEnd
+                            ? const HomePage()
+                            : const FirstGroupRed()
+                      : const LoginPage(),
                 );
-              }
-            },
-            home: _isSignedIn
-                ? _loading
-                ? const SplashScreen()
-                : _isRegistrationEnd
-                ? const HomePage()
-                : const FirstGroupRed()
-                : const LoginPage()
-          );
-        });
-      });
-    });
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }

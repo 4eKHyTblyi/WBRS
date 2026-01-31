@@ -17,12 +17,12 @@ class AboutIndividualMeet extends StatelessWidget {
   final AsyncSnapshot snapshot;
   final int index;
   final DocumentSnapshot doc;
-  const AboutIndividualMeet(
-      {super.key,
-      required this.snapshot,
-      required this.index,
-      required this.doc // Pass myUid as a required parameter
-      });
+  const AboutIndividualMeet({
+    super.key,
+    required this.snapshot,
+    required this.index,
+    required this.doc, // Pass myUid as a required parameter
+  });
 
   getChatRoomIdByUsernames(String a, String b) {
     if (a.isNotEmpty && b.isNotEmpty) {
@@ -50,11 +50,18 @@ class AboutIndividualMeet extends StatelessWidget {
       String token = '';
       var meet = snapshot.data.docs[index];
 
-      var data =
-          await firebaseFirestore.collection('TOKENS').doc(meet['admin']).get();
+      var data = await firebaseFirestore
+          .collection('TOKENS')
+          .doc(meet['admin'])
+          .get();
       token = data.get('token');
-      NotificationsService()
-          .sendPushMessageGroup(token, notification, meet['name'], 1, meet.id);
+      NotificationsService().sendPushMessageGroup(
+        token,
+        notification,
+        meet['name'],
+        1,
+        meet.id,
+      );
     }
 
     return Stack(
@@ -70,16 +77,21 @@ class AboutIndividualMeet extends StatelessWidget {
           appBar: AppBar(
             centerTitle: true,
             elevation: 0,
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
             actions: [
               isMeAdmin
                   ? IconButton(
                       onPressed: () {
                         nextScreenReplace(
-                            context, EditMeet(meet: snapshot.data.docs[index]));
+                          context,
+                          EditMeet(meet: snapshot.data.docs[index]),
+                        );
                       },
-                      icon: const Icon(Icons.edit_calendar_outlined))
-                  : const SizedBox()
+                      icon: const Icon(Icons.edit_calendar_outlined),
+                    )
+                  : const SizedBox(),
             ],
             backgroundColor: Colors.transparent,
             title: Text(
@@ -88,255 +100,300 @@ class AboutIndividualMeet extends StatelessWidget {
             ),
           ),
           body: SingleChildScrollView(
-              child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if(doc.exists)
-                Card(
-                  child: ListTile(
-                    onTap: () {
-                      if (isMeAdmin) {
-                        return;
-                      }
-                      nextScreen(
-                          context,
-                          SomebodyProfile(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              color: Colors.transparent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (doc.exists)
+                    Card(
+                      color: grey,
+                      child: ListTile(
+                        onTap: () {
+                          if (isMeAdmin) {
+                            return;
+                          }
+                          nextScreen(
+                            context,
+                            SomebodyProfile(
                               uid: doc.get('uid'),
                               photoUrl: doc.get('profilePic'),
                               name: doc.get('fullName'),
-                              userInfo: doc.data() as Map));
-                    },
-                    title: Text(doc.get('fullName')),
-                    leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: userImageWithCircle(doc.get('profilePic'),
-                            doc.get('группа'),false, 58.0, 58.0)),
-                    subtitle: Row(
-                      children: [
-                        doc.get('age') % 10 == 0
-                            ? Text('${doc.get('age')} лет')
-                            : doc.get('age') % 10 == 1
-                                ? Text('${doc.get('age')} год')
-                                : doc.get('age') % 10 != 5
-                                    ? Text('${doc.get('age')} года')
-                                    : Text('${doc.get('age')} лет'),
-                        const SizedBox(
-                          width: 20,
+                              userInfo: doc.data() as Map,
+                            ),
+                          );
+                        },
+                        tileColor: Colors.transparent,
+                        title: Text(
+                          doc.get('fullName'),
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        Text("Город ${doc.get('city')}")
-                      ],
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: userImageWithCircle(
+                            doc.get('profilePic'),
+                            doc.get('группа'),
+                            false,
+                            58.0,
+                            58.0,
+                          ),
+                        ),
+                        subtitle: Row(
+                          children: [
+                            Text(
+                              '${doc.get('age')} ${doc.get('age') % 10 == 0
+                                  ? 'лет'
+                                  : doc.get('age') % 10 == 1
+                                  ? 'год'
+                                  : doc.get('age') % 10 == 5
+                                  ? 'лет'
+                                  : 'года'}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              "Город: ${doc.get('city')}",
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  const Center(
+                    child: Text(
+                      'Детали встречи',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Center(
-                  child: Text(
-                    'Детали встречи',
-                    style: TextStyle(color: Colors.white),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Описание: ${snapshot.data.docs[index]['description']}",
+                    style: const TextStyle(color: Colors.white),
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Описание: ${snapshot.data.docs[index]['description']}",
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Дата и время: ${snapshot.data.docs[index]['datetime']}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  'Город: ${snapshot.data.docs[index]['city']}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
-                isMeAdmin
-                    ? const SizedBox.shrink()
-                    : snapshot.data.docs[index]['users']
-                            .contains(firebaseAuth.currentUser!.uid)
-                        ? const Center(
-                            child: Text(
-                              'Вы приняли приглашение на встречу',
-                              style: TextStyle(color: Colors.white),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Дата и время: ${snapshot.data.docs[index]['datetime']}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Город: ${snapshot.data.docs[index]['city']}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 50),
+                  isMeAdmin
+                      ? const SizedBox.shrink()
+                      : snapshot.data.docs[index]['users'].contains(
+                          firebaseAuth.currentUser!.uid,
+                        )
+                      ? const Center(
+                          child: Text(
+                            'Вы приняли приглашение на встречу',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: grey,
                             ),
-                          )
-                        : Center(
-                            child: ElevatedButton(
-                                onPressed: () async {
-                                  DocumentReference meet = firebaseFirestore
-                                      .collection('meets')
-                                      .doc(snapshot.data.docs[index].id);
-                                  List users = await meet
-                                      .get()
-                                      .then((value) => value['users']);
-                                  meet.update({
-                                    'users': users + [myUid]
-                                  });
-                                  String chatID = '';
-                                  bool haveChat = false;
-                                  String uid = await meet
-                                      .get()
-                                      .then((value) => value['admin']);
-                                  DocumentSnapshot userDoc =
-                                      await firebaseFirestore
-                                          .collection('users')
-                                          .doc(uid)
-                                          .get();
-                                  String name = userDoc.get('fullName');
-                                  String photoUrl = userDoc.get('profilePic');
-                                  await firebaseFirestore
-                                      .collection('chats')
-                                      .where('user1',
-                                          isEqualTo: FirebaseAuth
-                                              .instance.currentUser!.uid)
-                                      .where('user2', isEqualTo: uid)
-                                      .get()
-                                      .then((QuerySnapshot snapshot) {
+                            onPressed: () async {
+                              DocumentReference meet = firebaseFirestore
+                                  .collection('meets')
+                                  .doc(snapshot.data.docs[index].id);
+                              List users = await meet.get().then(
+                                (value) => value['users'],
+                              );
+                              meet.update({
+                                'users': users + [myUid],
+                              });
+                              String chatID = '';
+                              bool haveChat = false;
+                              String uid = await meet.get().then(
+                                (value) => value['admin'],
+                              );
+                              DocumentSnapshot userDoc = await firebaseFirestore
+                                  .collection('users')
+                                  .doc(uid)
+                                  .get();
+                              String name = userDoc.get('fullName');
+                              String photoUrl = userDoc.get('profilePic');
+                              await firebaseFirestore
+                                  .collection('chats')
+                                  .where(
+                                    'user1',
+                                    isEqualTo:
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                  )
+                                  .where('user2', isEqualTo: uid)
+                                  .get()
+                                  .then((QuerySnapshot snapshot) {
                                     if (snapshot.docs.isEmpty) {
                                     } else {
                                       haveChat = true;
                                       chatID = snapshot.docs[0].id;
                                     }
                                   });
-                                  await firebaseFirestore
-                                      .collection('chats')
-                                      .where('user2',
-                                          isEqualTo: FirebaseAuth
-                                              .instance.currentUser!.uid)
-                                      .where('user1', isEqualTo: uid)
-                                      .get()
-                                      .then((QuerySnapshot snapshot) {
+                              await firebaseFirestore
+                                  .collection('chats')
+                                  .where(
+                                    'user2',
+                                    isEqualTo:
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                  )
+                                  .where('user1', isEqualTo: uid)
+                                  .get()
+                                  .then((QuerySnapshot snapshot) {
                                     if (snapshot.docs.isEmpty) {
                                     } else {
                                       haveChat = true;
                                       chatID = snapshot.docs[0].id;
                                     }
                                   });
-                                  addNotification();
-                                  if (haveChat == false) {
-                                    chatID = getChatRoomIdByUsernames(
-                                        FirebaseAuth
-                                            .instance.currentUser!.displayName
-                                            .toString(),
-                                        name);
-                                    Map<String, dynamic> chatRoomInfoMap = {
-                                      'user1': FirebaseAuth
-                                          .instance.currentUser!.uid
-                                          .toString(),
-                                      'user2': doc.id,
-                                      'user1Nickname': FirebaseAuth
-                                          .instance.currentUser!.displayName,
-                                      'user2Nickname': name,
-                                      'user1_image': FirebaseAuth
-                                          .instance.currentUser!.photoURL,
-                                      'user2_image': photoUrl,
-                                      'lastMessage': '',
-                                      'lastMessageSendBy': '',
-                                      'lastMessageSendTs': DateTime.now(),
-                                      'unreadMessage': 0,
-                                      'chatId': chatID
-                                    };
-                                    await DatabaseService().createChatRoom(
-                                        getChatRoomIdByUsernames(
-                                            firebaseAuth
-                                                .currentUser!.displayName
-                                                .toString(),
-                                            name),
-                                        chatRoomInfoMap);
-                                    DatabaseService().addChat(
-                                        firebaseAuth.currentUser!.uid, chatID);
-                                    DatabaseService()
-                                        .addChatSecondUser(uid, chatID);
-                                    DatabaseService().addMessage(
-                                      chatID,
-                                      'to${meet.id}',
-                                      {
-                                        'message': 'Принял приглашение',
-                                        'type': 'text',
-                                        'isRead': false,
-                                        'sendBy': FirebaseAuth
-                                            .instance.currentUser!.displayName,
-                                        'sendByID': FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                        'ts': DateTime.now()
-                                            .millisecondsSinceEpoch
-                                      },
-                                    ).then((value) {
+                              addNotification();
+                              if (haveChat == false) {
+                                chatID = getChatRoomIdByUsernames(
+                                  FirebaseAuth.instance.currentUser!.displayName
+                                      .toString(),
+                                  name,
+                                );
+                                Map<String, dynamic> chatRoomInfoMap = {
+                                  'user1': FirebaseAuth
+                                      .instance
+                                      .currentUser!
+                                      .uid
+                                      .toString(),
+                                  'user2': doc.id,
+                                  'user1Nickname': FirebaseAuth
+                                      .instance
+                                      .currentUser!
+                                      .displayName,
+                                  'user2Nickname': name,
+                                  'user1_image': FirebaseAuth
+                                      .instance
+                                      .currentUser!
+                                      .photoURL,
+                                  'user2_image': photoUrl,
+                                  'lastMessage': '',
+                                  'lastMessageSendBy': '',
+                                  'lastMessageSendTs': DateTime.now(),
+                                  'unreadMessage': 0,
+                                  'chatId': chatID,
+                                };
+                                await DatabaseService().createChatRoom(
+                                  getChatRoomIdByUsernames(
+                                    firebaseAuth.currentUser!.displayName
+                                        .toString(),
+                                    name,
+                                  ),
+                                  chatRoomInfoMap,
+                                );
+                                DatabaseService().addChat(
+                                  firebaseAuth.currentUser!.uid,
+                                  chatID,
+                                );
+                                DatabaseService().addChatSecondUser(
+                                  uid,
+                                  chatID,
+                                );
+                                DatabaseService()
+                                    .addMessage(chatID, 'to${meet.id}', {
+                                      'message': 'Принял приглашение',
+                                      'type': 'text',
+                                      'isRead': false,
+                                      'sendBy': FirebaseAuth
+                                          .instance
+                                          .currentUser!
+                                          .displayName,
+                                      'sendByID': FirebaseAuth
+                                          .instance
+                                          .currentUser!
+                                          .uid,
+                                      'ts':
+                                          DateTime.now().millisecondsSinceEpoch,
+                                    })
+                                    .then((value) {
                                       Map<String, dynamic> lastMessageInfoMap =
                                           {
-                                        'lastMessage': 'Принял приглашение',
-                                        'lastMessageSendTs': DateTime.now(),
-                                        'lastMessageSendBy': FirebaseAuth
-                                            .instance.currentUser!.displayName,
-                                        'lastMessageSendByID': FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                      };
+                                            'lastMessage': 'Принял приглашение',
+                                            'lastMessageSendTs': DateTime.now(),
+                                            'lastMessageSendBy': FirebaseAuth
+                                                .instance
+                                                .currentUser!
+                                                .displayName,
+                                            'lastMessageSendByID': FirebaseAuth
+                                                .instance
+                                                .currentUser!
+                                                .uid,
+                                          };
 
                                       DatabaseService().updateLastMessageSend(
-                                          chatID, lastMessageInfoMap);
+                                        chatID,
+                                        lastMessageInfoMap,
+                                      );
                                     });
-                                  } else {
-                                    DatabaseService().addMessage(
-                                      chatID,
-                                      'to${meet.id}',
-                                      {
-                                        'message': 'Принял приглашение',
-                                        'type': 'text',
-                                        'isRead': false,
-                                        'sendBy': FirebaseAuth
-                                            .instance.currentUser!.displayName,
-                                        'sendByID': FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                        'ts': DateTime.now()
-                                      },
-                                    ).then((value) {
+                              } else {
+                                DatabaseService()
+                                    .addMessage(chatID, 'to${meet.id}', {
+                                      'message': 'Принял приглашение',
+                                      'type': 'text',
+                                      'isRead': false,
+                                      'sendBy': FirebaseAuth
+                                          .instance
+                                          .currentUser!
+                                          .displayName,
+                                      'sendByID': FirebaseAuth
+                                          .instance
+                                          .currentUser!
+                                          .uid,
+                                      'ts': DateTime.now(),
+                                    })
+                                    .then((value) {
                                       Map<String, dynamic> lastMessageInfoMap =
                                           {
-                                        'lastMessage': 'Принял приглашение',
-                                        'lastMessageSendTs': DateTime.now(),
-                                        'lastMessageSendBy': FirebaseAuth
-                                            .instance.currentUser!.displayName,
-                                        'lastMessageSendByID': FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                      };
+                                            'lastMessage': 'Принял приглашение',
+                                            'lastMessageSendTs': DateTime.now(),
+                                            'lastMessageSendBy': FirebaseAuth
+                                                .instance
+                                                .currentUser!
+                                                .displayName,
+                                            'lastMessageSendByID': FirebaseAuth
+                                                .instance
+                                                .currentUser!
+                                                .uid,
+                                          };
 
                                       DatabaseService().updateLastMessageSend(
-                                          chatID, lastMessageInfoMap);
+                                        chatID,
+                                        lastMessageInfoMap,
+                                      );
                                     });
-                                  }
-                                  nextScreenReplace(
-                                      context,
-                                      ChatScreen(
-                                        chatId: chatID,
-                                        chatWithUsername: name,
-                                        id: FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                        photoUrl: photoUrl,
-                                      ));
-                                },
-                                child: isMeAdmin
-                                    ? const SizedBox.shrink()
-                                    : const Text(
-                                        'Принять приглашение на встречу',
-                                        style: TextStyle(color: Colors.black),
-                                      ))),
-              ],
+                              }
+                              nextScreenReplace(
+                                context,
+                                ChatScreen(
+                                  chatId: chatID,
+                                  chatWithUsername: name,
+                                  id: FirebaseAuth.instance.currentUser!.uid,
+                                  photoUrl: photoUrl,
+                                ),
+                              );
+                            },
+                            child: isMeAdmin
+                                ? const SizedBox.shrink()
+                                : const Text(
+                                    'Принять приглашение на встречу',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                          ),
+                        ),
+                ],
+              ),
             ),
-          )),
+          ),
         ),
       ],
     );

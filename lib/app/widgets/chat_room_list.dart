@@ -34,88 +34,95 @@ class _ChatRoomListState extends State<ChatRoomList> {
     String id = '', nick = '', photoUrl = '';
 
     return FutureBuilder(
-        future: firebaseFirestore
-            .collection('users')
-            .doc(widget.snapshot.get('user1') == myUid
+      future: firebaseFirestore
+          .collection('users')
+          .doc(
+            widget.snapshot.get('user1') == myUid
                 ? widget.snapshot.get('user2')
-                : widget.snapshot.get('user1'))
-            .get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            String group = '';
-            DocumentSnapshot data = snapshot.data!;
-            id = data.id;
-            nick = data.exists ? data.get('fullName') : 'Удаленный пользователь';
-            photoUrl = data.exists ? data.get('profilePic') : '';
-            if (snapshot.data!.data() != null) {
-              group = snapshot.data!.get('группа');
-            }
-            return ListTile(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0)),
-              subtitle: widget.snapshot.get('lastMessage') != ''
-                  ? Container(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              "${widget.snapshot.get("lastMessageSendByID") == myUid ? "Вы" : widget.snapshot.get("lastMessageSendBy")}: ${widget.snapshot.get("lastMessage")}",
-                              maxLines: 2,
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                : widget.snapshot.get('user1'),
+          )
+          .get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          String group = '';
+          DocumentSnapshot data = snapshot.data!;
+          id = data.id;
+          nick = data.exists ? data.get('fullName') : 'Удаленный пользователь';
+          photoUrl = data.exists ? data.get('profilePic') : '';
+          if (snapshot.data!.data() != null) {
+            group = snapshot.data!.get('группа');
+          }
+          return ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40.0),
+            ),
+            subtitle: widget.snapshot.get('lastMessage') != ''
+                ? Container(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            "${widget.snapshot.get("lastMessageSendByID") == myUid ? "Вы" : widget.snapshot.get("lastMessageSendBy")}: ${widget.snapshot.get("lastMessage")}",
+                            maxLines: 2,
+                            style: const TextStyle(color: Colors.white),
                           ),
-                          widget.snapshot.get('lastMessageSendByID') != myUid
-                              ? widget.snapshot.get('unreadMessage') != null
+                        ),
+                        widget.snapshot.get('lastMessageSendByID') != myUid
+                            ? widget.snapshot.get('unreadMessage') != null
                                   ? widget.snapshot.get('unreadMessage') != 0
-                                      ? CircleAvatar(
-                                          backgroundColor: Colors.white,
-                                          radius: 10,
-                                          child: Text(
-                                            widget.snapshot
-                                                .get('unreadMessage')
-                                                .toString(),
-                                            style: const TextStyle(
+                                        ? CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            radius: 10,
+                                            child: Text(
+                                              widget.snapshot
+                                                  .get('unreadMessage')
+                                                  .toString(),
+                                              style: const TextStyle(
                                                 color: Colors.black,
                                                 fontWeight: FontWeight.w400,
                                                 fontSize: 14,
-                                                fontFamily: 'Roboto'),
-                                          ),
-                                        )
-                                      : const SizedBox()
+                                                fontFamily: 'Roboto',
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox()
                                   : const SizedBox()
-                              : const SizedBox(),
-                        ],
-                      ),
-                    )
-                  : const Text(
-                      'нет сообщений',
-                      style: TextStyle(color: Colors.white),
+                            : const SizedBox(),
+                      ],
                     ),
-              title: Text(
-                nick,
-                style: const TextStyle(color: Colors.white),
-              ),
-              onTap: () async {
-                nextScreen(
-                    context,
-                    ChatScreen(
-                        chatWithUsername: nick,
-                        photoUrl: photoUrl,
-                        id: id,
-                        chatId: widget.snapshot.id));
-              },
-              leading: userImageWithCircle(photoUrl,
-                  group,data.exists ? data.get('online') : false, 50.0, 50.0),
-              tileColor: grey,
-              contentPadding: const EdgeInsets.all(15.0),
-            );
-          }
-        });
+                  )
+                : const Text(
+                    'нет сообщений',
+                    style: TextStyle(color: Colors.white),
+                  ),
+            title: Text(nick, style: const TextStyle(color: Colors.white)),
+            onTap: () async {
+              nextScreen(
+                context,
+                ChatScreen(
+                  chatWithUsername: nick,
+                  photoUrl: photoUrl,
+                  id: id,
+                  chatId: widget.snapshot.id,
+                ),
+              );
+            },
+            leading: userImageWithCircle(
+              photoUrl,
+              group,
+              data.exists ? data.get('online') : false,
+              50.0,
+              50.0,
+            ),
+            tileColor: grey,
+            contentPadding: const EdgeInsets.all(15.0),
+          );
+        }
+      },
+    );
   }
 }

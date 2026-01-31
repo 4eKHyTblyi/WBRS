@@ -59,8 +59,9 @@ class _ProfilePageState extends State<ProfilePage> {
   List<XFile>? imageFileList = [];
 
   void selectImages() async {
-    final List<XFile> selectedImages =
-        await imagePicker.pickMultiImage(imageQuality: 50);
+    final List<XFile> selectedImages = await imagePicker.pickMultiImage(
+      imageQuality: 50,
+    );
     if (selectedImages.isNotEmpty) {
       imageFileList!.addAll(selectedImages);
       for (int i = 0; i < selectedImages.length; i++) {
@@ -71,13 +72,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void pickUploadImage() async {
-    final image = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    Reference ref = FirebaseStorage.instance
-        .ref()
-        .child('profilepic${firebaseAuth.currentUser?.uid}.jpg');
+    Reference ref = FirebaseStorage.instance.ref().child(
+      'profilepic${firebaseAuth.currentUser?.uid}.jpg',
+    );
 
     await ref.putFile(File(image!.path));
     ref.getDownloadURL().then((value) {
@@ -130,36 +129,41 @@ class _ProfilePageState extends State<ProfilePage> {
               IconButton(
                 onPressed: () {
                   showModalBottomSheet(
-                      backgroundColor: darkGrey,
-                      context: context,
-                      builder: (context) {
-                        return Container(
-                          height: MediaQuery.of(context).size.height,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                              color: Colors.black45,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20))),
-                          child: Container(
-                            padding: EdgeInsets.only(
-                                bottom:
-                                    MediaQuery.of(context).viewInsets.bottom),
-                            child: SingleChildScrollView(
-                              child: Form(
-                                key: formKey,
-                                child: Column(children: [
+                    backgroundColor: darkGrey,
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        height: MediaQuery.of(context).size.height,
+                        padding: const EdgeInsets.all(20),
+                        decoration: const BoxDecoration(
+                          color: Colors.black45,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Container(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom,
+                          ),
+                          child: SingleChildScrollView(
+                            child: Form(
+                              key: formKey,
+                              child: Column(
+                                children: [
                                   TextFormField(
                                     style: const TextStyle(color: Colors.black),
                                     obscureText: true,
                                     decoration: textInputDecoration.copyWith(
-                                        labelStyle: const TextStyle(
-                                            color: Colors.white),
-                                        labelText: 'Введите пароль',
-                                        prefixIcon: Icon(
-                                          Icons.lock,
-                                          color: Theme.of(context).primaryColor,
-                                        )),
+                                      labelStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      labelText: 'Введите пароль',
+                                      prefixIcon: Icon(
+                                        Icons.lock,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
                                     validator: (val) {
                                       if (val!.length < 6) {
                                         return 'Пароль должен содержать 6 символов';
@@ -173,20 +177,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                       });
                                     },
                                   ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
+                                  const SizedBox(height: 20),
                                   TextFormField(
                                     style: const TextStyle(color: Colors.black),
                                     obscureText: true,
                                     decoration: textInputDecoration.copyWith(
-                                        labelStyle: const TextStyle(
-                                            color: Colors.white),
-                                        labelText: 'Повторите пароль',
-                                        prefixIcon: Icon(
-                                          Icons.lock,
-                                          color: Theme.of(context).primaryColor,
-                                        )),
+                                      labelStyle: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      labelText: 'Повторите пароль',
+                                      prefixIcon: Icon(
+                                        Icons.lock,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
                                     validator: (val) {
                                       if (val!.length < 6) {
                                         return 'Пароль должен содержать 6 символов';
@@ -204,49 +208,62 @@ class _ProfilePageState extends State<ProfilePage> {
                                     },
                                   ),
                                   TextButton(
-                                      onPressed: () async {
-                                        if (formKey.currentState!.validate()) {
-                                          try {
-                                            await FirebaseAuth
-                                                .instance.currentUser!
-                                                .updatePassword(
-                                                    passwordConfirm);
+                                    onPressed: () async {
+                                      if (formKey.currentState!.validate()) {
+                                        try {
+                                          await FirebaseAuth
+                                              .instance
+                                              .currentUser!
+                                              .updatePassword(passwordConfirm);
 
-                                            firebaseAuth.signOut();
-                                            nextScreenReplace(
-                                                context, const LoginPage());
-                                            showSnackbar(context, Colors.green,
-                                                'Пароль успешно изменен! Пожалуйста авторизуйтесь повторно.');
-                                          } on Exception catch (e) {
-                                            showSnackbar(context, Colors.red,
-                                                e.toString());
-                                          }
+                                          firebaseAuth.signOut();
+                                          nextScreenReplace(
+                                            context,
+                                            const LoginPage(),
+                                          );
+                                          showSnackbar(
+                                            context,
+                                            Colors.green,
+                                            'Пароль успешно изменен! Пожалуйста авторизуйтесь повторно.',
+                                          );
+                                        } on Exception catch (e) {
+                                          showSnackbar(
+                                            context,
+                                            Colors.red,
+                                            e.toString(),
+                                          );
                                         }
-                                      },
-                                      child: const Text(
-                                        'Сменить пароль',
-                                        style: TextStyle(color: Colors.white),
-                                      )),
-                                ]),
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Сменить пароль',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        );
-                      });
+                        ),
+                      );
+                    },
+                  );
                 },
                 icon: const Icon(Icons.more_horiz_rounded),
                 splashRadius: 20,
-              )
+              ),
             ],
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: const Text(
               'Профиль',
               style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold),
+                color: Colors.white,
+                fontSize: 27,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            automaticallyImplyLeading: true,
           ),
           drawer: const MyDrawer(),
           body: SingleChildScrollView(
@@ -258,298 +275,319 @@ class _ProfilePageState extends State<ProfilePage> {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                          Stack(
-                            children: [
-                              StreamBuilder(
-                                  stream: firebaseFirestore
-                                      .collection('users')
-                                      .doc(currentUser!.uid)
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return userImageWithCircle(
-                                          snapshot.data!['profilePic'],
-                                          widget.group,
-                                          snapshot.data!['online']);
-                                    } else {
-                                      return userImageWithCircle(
-                                          '',
-                                          widget.group,
-                                          false);
-                                    }
-                                  }),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Ваша группа: ',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
-                              ),
-                              Text(widget.group,
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 18))
-                            ],
-                          ),
-                        const SizedBox(
-                          height: 20,
+                        Stack(
+                          children: [
+                            StreamBuilder(
+                              stream: firebaseFirestore
+                                  .collection('users')
+                                  .doc(currentUser!.uid)
+                                  .snapshots(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return userImageWithCircle(
+                                    snapshot.data!['profilePic'],
+                                    widget.group,
+                                    snapshot.data!['online'],
+                                  );
+                                } else {
+                                  return userImageWithCircle(
+                                    '',
+                                    widget.group,
+                                    false,
+                                  );
+                                }
+                              },
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Ваша группа: ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              widget.group,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
                               'Ваша баланс: ',
                               style: TextStyle(
-                                  color: Colors.white, fontSize: 18),
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
                             ),
-                            Text(globalBalance.toString(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 18))
+                            Text(
+                              globalBalance.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
                           ],
                         ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Вам подходят: ',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Column(children: getLikeGroup(widget.group)),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          height: 140,
+                          child: Row(
+                            //mainAxisSize: MainAxisSize.values.first,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Вам подходят: ',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
-                              ),
                               Column(
-                                children: getLikeGroup(widget.group),
-                              )
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          SizedBox(
-                            height: 140,
-                            child: Row(
-                              //mainAxisSize: MainAxisSize.values.first,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: BoxDecoration(
-                                            color: Colors.orangeAccent,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5),
-                                                spreadRadius: 3,
-                                                blurRadius:
-                                                    7, // changes position of shadow
-                                              ),
-                                            ],
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(50.0))),
-                                        child: IconButton(
-                                            onPressed: () {
-                                              var visiters = FirebaseFirestore
-                                                  .instance
-                                                  .collection('users')
-                                                  .doc(firebaseAuth
-                                                      .currentUser!.uid)
-                                                  .collection('visiters')
-                                                  .orderBy('lastVisitTs', descending: true)
-                                                  .snapshots();
-                                              nextScreenReplace(
-                                                  context,
-                                                  MyVisitersPage(
-                                                    visiters: visiters,
-                                                  ));
-                                            },
-                                            icon: const Icon(
-                                              Icons.info,
-                                              size: 30,
-                                              color: Colors.white,
-                                            ))),
-                                    const Text(
-                                      'Мои гости',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 14),
-                                    ),
-                                    const SizedBox(
-                                      height: 50,
-                                    )
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    const SizedBox(
-                                      height: 30,
-                                    ),
-                                    Container(
-                                      height: 70,
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                          color: Colors.orangeAccent,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.5),
-                                              spreadRadius: 3,
-                                              blurRadius:
-                                                  7, // changes position of shadow
-                                            ),
-                                          ],
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(50.0))),
-                                      child: IconButton(
-                                        onPressed: () {
-                                          global.globalPol = widget.pol;
-                                          nextScreenReplace(
-                                              context,
-                                              ProfilePageEdit(
-                                                email: widget.email,
-                                                userName: widget.userName,
-                                                about: widget.about,
-                                                age: widget.age,
-                                                hobbi: widget.hobbi,
-                                                deti: widget.deti,
-                                                city: widget.city,
-                                                rost: widget.rost,
-                                              ));
-                                        },
-                                        icon: const Icon(
-                                          Icons.mode_edit_sharp,
-                                          size: 35,
-                                          color: Colors.white,
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.orangeAccent,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          spreadRadius: 3,
+                                          blurRadius:
+                                              7, // changes position of shadow
                                         ),
+                                      ],
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(50.0),
                                       ),
                                     ),
-                                    const Text(
-                                      'Изменить профиль',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 18),
-                                    )
-                                  ],
-                                ),
-                                //const SizedBox(width: 7,),
-                                Column(
-                                  children: [
-                                    Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: BoxDecoration(
-                                            color: Colors.orangeAccent,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5),
-                                                spreadRadius: 3,
-                                                blurRadius:
-                                                    7, // changes position of shadow
-                                              ),
-                                            ],
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(50.0))),
-                                        child: IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                global.selectedIndex = 2;
-                                              });
-                                              nextScreenReplace(
-                                                  context,
-                                                  ProfilesList(
-                                                    startPosition: 0,
-                                                    group: widget.group,
-                                                  ));
-                                            },
-                                            icon: const Icon(
-                                              Icons.person,
-                                              size: 35,
-                                              color: Colors.white,
-                                            ))),
-                                    const Text(
-                                      'Люди',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 14),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        var visiters = FirebaseFirestore
+                                            .instance
+                                            .collection('users')
+                                            .doc(firebaseAuth.currentUser!.uid)
+                                            .collection('visiters')
+                                            .orderBy(
+                                              'lastVisitTs',
+                                              descending: true,
+                                            )
+                                            .snapshots();
+                                        nextScreenReplace(
+                                          context,
+                                          MyVisitersPage(visiters: visiters),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.info,
+                                        size: 30,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                    const SizedBox(
-                                      height: 50,
-                                    )
-                                  ],
-                                ),
-                              ],
-                            ),
+                                  ),
+                                  const Text(
+                                    'Мои гости',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 50),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  const SizedBox(height: 30),
+                                  Container(
+                                    height: 70,
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                      color: Colors.orangeAccent,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          spreadRadius: 3,
+                                          blurRadius:
+                                              7, // changes position of shadow
+                                        ),
+                                      ],
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(50.0),
+                                      ),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        global.globalPol = widget.pol;
+                                        nextScreenReplace(
+                                          context,
+                                          ProfilePageEdit(
+                                            email: widget.email,
+                                            userName: widget.userName,
+                                            about: widget.about,
+                                            age: widget.age,
+                                            hobbi: widget.hobbi,
+                                            deti: widget.deti,
+                                            city: widget.city,
+                                            rost: widget.rost,
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.mode_edit_sharp,
+                                        size: 35,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Изменить профиль',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              //const SizedBox(width: 7,),
+                              Column(
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.orangeAccent,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          spreadRadius: 3,
+                                          blurRadius:
+                                              7, // changes position of shadow
+                                        ),
+                                      ],
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(50.0),
+                                      ),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          global.selectedIndex = 2;
+                                        });
+                                        nextScreenReplace(
+                                          context,
+                                          ProfilesList(
+                                            startPosition: 0,
+                                            group: widget.group,
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.person,
+                                        size: 35,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Люди',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 50),
+                                ],
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            height: 40,
+                        ),
+                        const SizedBox(height: 40),
+                        const Text(
+                          'Фотографии',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.normal,
                           ),
-                          const Text(
-                            'Фотографии',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.normal),
+                        ),
+                        StreamBuilder(
+                          stream: firebaseFirestore
+                              .collection('users')
+                              .doc(firebaseAuth.currentUser!.uid)
+                              .collection('images')
+                              .snapshots(),
+                          builder: (context, AsyncSnapshot snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (snapshot.data != null) {
+                              if (snapshot.data!.docs.length != 0) {
+                                return ifImageSnapshotNotEmpty(snapshot);
+                              } else {
+                                return ifImageSnaphotEmpty(snapshot);
+                              }
+                            } else {
+                              return ifImageSnaphotEmpty(snapshot);
+                            }
+                          },
+                        ),
+                        const Text(
+                          'Подарки',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.normal,
                           ),
-                          StreamBuilder(
-                              stream: firebaseFirestore
-                                  .collection('users')
-                                  .doc(firebaseAuth.currentUser!.uid)
-                                  .collection('images')
-                                  .snapshots(),
-                              builder: (context, AsyncSnapshot snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                                if (snapshot.data != null) {
-                                  if (snapshot.data!.docs.length != 0) {
-                                    return ifImageSnapshotNotEmpty(snapshot);
-                                  } else {
-                                    return ifImageSnaphotEmpty(snapshot);
-                                  }
-                                } else {
-                                  return ifImageSnaphotEmpty(snapshot);
-                                }
-                              }),
-                          const Text(
-                            'Подарки',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.normal),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          StreamBuilder(
-                              stream: firebaseFirestore
-                                  .collection('users')
-                                  .doc(firebaseAuth.currentUser!.uid)
-                                  .snapshots(),
-                              builder: (context,
-                                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        ),
+                        const SizedBox(height: 20),
+                        StreamBuilder(
+                          stream: firebaseFirestore
+                              .collection('users')
+                              .doc(firebaseAuth.currentUser!.uid)
+                              .snapshots(),
+                          builder:
+                              (
+                                context,
+                                AsyncSnapshot<DocumentSnapshot> snapshot,
+                              ) {
                                 if (snapshot.data != null) {
                                   Map docAsMap = snapshot.data!.data() as Map;
                                   if (docAsMap['presentedGifts'] != null) {
                                     if (docAsMap['presentedGifts'].length > 0) {
                                       return ifGiftsSnapshotNotEmtpry(
-                                          docAsMap['presentedGifts']);
+                                        docAsMap['presentedGifts'],
+                                      );
                                     } else {
                                       return ifGiftsSnaphotEmpty(snapshot);
                                     }
@@ -559,34 +597,32 @@ class _ProfilePageState extends State<ProfilePage> {
                                 } else {
                                   return ifGiftsSnaphotEmpty(snapshot);
                                 }
-                              }),
-                        ])
+                              },
+                        ),
+                      ],
+                    )
                   : const SizedBox(),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 
-  ifImageSnapshotNotEmpty(
-    AsyncSnapshot snapshot,
-  ) {
+  ifImageSnapshotNotEmpty(AsyncSnapshot snapshot) {
     List urls = [];
     List initList = [];
     for (int i = 0; i < snapshot.data.docs.length; i++) {
       urls.add(snapshot.data.docs[i]['url']);
       initList.add(snapshot.data.docs[i]['url']);
     }
-    urls.sort(
-      (a, b) {
-        return a.toString() == firebaseAuth.currentUser!.photoURL
-            ? -1
-            : b.toString() == firebaseAuth.currentUser!.photoURL
-                ? 1
-                : 0;
-      },
-    );
+    urls.sort((a, b) {
+      return a.toString() == firebaseAuth.currentUser!.photoURL
+          ? -1
+          : b.toString() == firebaseAuth.currentUser!.photoURL
+          ? 1
+          : 0;
+    });
 
     return Column(
       children: [
@@ -594,53 +630,60 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 100,
           width: MediaQuery.of(context).size.width,
           child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          bottomLeft: Radius.circular(15))),
-                  height: 300,
-                  child: InkWell(
-                      onTap: () {
-                        nextScreen(
-                            context,
-                            ShowImage(
-                              urls: urls,
-                              initList: initList,
-                              index: index,
-                              snapshot: snapshot,
-                            ));
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
-                          image: DecorationImage(
-                              image: CachedNetworkImageProvider(urls[index]),
-                              fit: BoxFit.cover),
-                        ),
-                        width: 100,
-                        child: const SizedBox(),
-                      )),
-                );
-              },
-              itemCount: urls.length),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    bottomLeft: Radius.circular(15),
+                  ),
+                ),
+                height: 300,
+                child: InkWell(
+                  onTap: () {
+                    nextScreen(
+                      context,
+                      ShowImage(
+                        urls: urls,
+                        initList: initList,
+                        index: index,
+                        snapshot: snapshot,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      image: DecorationImage(
+                        image: CachedNetworkImageProvider(urls[index]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    width: 100,
+                    child: const SizedBox(),
+                  ),
+                ),
+              );
+            },
+            itemCount: urls.length,
+          ),
         ),
         ElevatedButton(
-            onPressed: () async {
-              selectImages();
+          onPressed: () async {
+            selectImages();
 
-              imageFileList!.clear();
-            },
-            style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.orangeAccent)),
-            child: const Text(
-              'Добавить фотографии',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            )),
+            imageFileList!.clear();
+          },
+          style: const ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(Colors.orangeAccent),
+          ),
+          child: const Text(
+            'Добавить фотографии',
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ),
       ],
     );
   }
@@ -648,21 +691,19 @@ class _ProfilePageState extends State<ProfilePage> {
   ifImageSnaphotEmpty(AsyncSnapshot snapshot) {
     return Column(
       children: [
-        const Text(
-          'Нет фотографий',
-          style: TextStyle(color: Colors.white),
-        ),
+        const Text('Нет фотографий', style: TextStyle(color: Colors.white)),
         ElevatedButton(
           onPressed: () async {
             selectImages();
           },
           style: const ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(Colors.orangeAccent)),
+            backgroundColor: WidgetStatePropertyAll(Colors.orangeAccent),
+          ),
           child: const Text(
             'Добавить фотографии',
             style: TextStyle(color: Colors.black),
           ),
-        )
+        ),
       ],
     );
   }
@@ -685,9 +726,7 @@ class _ProfilePageState extends State<ProfilePage> {
         .add({'url': downloadUrl});
   }
 
-  ifGiftsSnapshotNotEmtpry(
-    Map gifts,
-  ) {
+  ifGiftsSnapshotNotEmtpry(Map gifts) {
     List urlsList = gifts.keys.toList();
     List countList = gifts.values.toList();
     return Column(
@@ -696,43 +735,50 @@ class _ProfilePageState extends State<ProfilePage> {
           height: 100,
           width: MediaQuery.of(context).size.width,
           child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          bottomLeft: Radius.circular(15))),
-                  height: 300,
-                  child: InkWell(
-                      onTap: () {},
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 5),
-                        width: 110,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Image.asset(urlsList[index], fit: BoxFit.fitWidth),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    border: Border.all(color: Colors.white),
-                                  ),
-                                  child: Text(
-                                    countList[index].toString(),
-                                    style: const TextStyle(color: Colors.white),
-                                  )),
-                            )
-                          ],
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(15),
+                    bottomLeft: Radius.circular(15),
+                  ),
+                ),
+                height: 300,
+                child: InkWell(
+                  onTap: () {},
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 5),
+                    width: 110,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset(urlsList[index], fit: BoxFit.fitWidth),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(color: Colors.white),
+                            ),
+                            child: Text(
+                              countList[index].toString(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
                         ),
-                      )),
-                );
-              },
-              itemCount: gifts.length),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+            itemCount: gifts.length,
+          ),
         ),
       ],
     );
@@ -740,12 +786,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   ifGiftsSnaphotEmpty(AsyncSnapshot snapshot) {
     return const Column(
-      children: [
-        Text(
-          'Нет подарков',
-          style: TextStyle(color: Colors.white),
-        ),
-      ],
+      children: [Text('Нет подарков', style: TextStyle(color: Colors.white))],
     );
   }
 }

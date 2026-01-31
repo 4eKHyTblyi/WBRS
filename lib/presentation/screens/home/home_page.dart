@@ -77,6 +77,19 @@ class _HomePageState extends State<HomePage> {
 
   String? mtoken;
   void getToken() async {
+    await FirebaseFirestore.instance
+        .collection('TOKENS')
+        .doc(firebaseAuth.currentUser?.uid)
+        .get()
+        .then((value) {
+          setState(() {
+            mtoken = value['token'];
+          });
+        });
+    if (mtoken != null) {
+      return;
+    }
+
     await firebaseMessaging.getToken().then((token) {
       mtoken = token;
     });
@@ -95,41 +108,49 @@ class _HomePageState extends State<HomePage> {
           fit: BoxFit.cover,
         ),
         Scaffold(
-            bottomNavigationBar: const MyBottomNavigationBar(),
+          bottomNavigationBar: const MyBottomNavigationBar(),
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+            centerTitle: true,
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              iconTheme: const IconThemeData(color: Colors.white),
-              elevation: 0,
-              centerTitle: true,
-              backgroundColor: Colors.transparent,
-              title: const Text(
-                'Чаты',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 27),
+            title: const Text(
+              'Чаты',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 27,
               ),
-              actions: [Text('Ваш баланс:\n ${globalBalance.toString()} серебра\n на подарки', style: TextStyle(color: Colors.white, height: 1.1), textAlign: TextAlign.center,)],
             ),
-            drawer: const MyDrawer(),
-            body: SizedBox(
-              height: 10000,
-              child: StreamBuilder(
-                  stream: firebaseFirestore
-                      .collection('chats')
-                      .where(Filter.or(
-                        Filter('user1',
-                            isEqualTo: firebaseAuth.currentUser!.uid),
-                        Filter('user2',
-                            isEqualTo: firebaseAuth.currentUser!.uid),
-                      ))
-                      .snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
+            actions: [
+              Text(
+                'Ваш баланс:\n ${globalBalance.toString()} серебра\n на подарки',
+                style: TextStyle(color: Colors.white, height: 1.1),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          drawer: const MyDrawer(),
+          body: SizedBox(
+            height: 10000,
+            child: StreamBuilder(
+              stream: firebaseFirestore
+                  .collection('chats')
+                  .where(
+                    Filter.or(
+                      Filter('user1', isEqualTo: firebaseAuth.currentUser!.uid),
+                      Filter('user2', isEqualTo: firebaseAuth.currentUser!.uid),
+                    ),
+                  )
+                  .snapshots(),
+              builder:
+                  (
+                    BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot,
+                  ) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return const Center(child: CircularProgressIndicator());
                     } else {
                       if (!snapshot.hasData) {
                         return const Text(
@@ -145,24 +166,31 @@ class _HomePageState extends State<HomePage> {
                         });
                         if (firebaseAuth.currentUser != null) {
                           return ListView.builder(
-                              itemCount: sortedList.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 7.0, horizontal: 15),
-                                  child: SizedBox(
-                                      height: 100,
-                                      child: ChatRoomList(
-                                          snapshot: sortedList[index])),
-                                );
-                              });
+                            itemCount: sortedList.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 7.0,
+                                  horizontal: 15,
+                                ),
+                                child: SizedBox(
+                                  height: 100,
+                                  child: ChatRoomList(
+                                    snapshot: sortedList[index],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         } else {
                           return const Text('none');
                         }
                       }
                     }
-                  }),
-            )),
+                  },
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -77,11 +77,7 @@ userImageWithCircle(userPhotoUrl, group, online, [width, height]) {
       online: online,
     );
   } else {
-    return UserImage(
-      userPhotoUrl: userPhotoUrl,
-      group: group,
-      online: online,
-    );
+    return UserImage(userPhotoUrl: userPhotoUrl, group: group, online: online);
   }
 }
 
@@ -93,68 +89,41 @@ List<Widget> getLikeGroup(myGroup) {
       myGroup == 'коричневая') {
     spisok = ['Все белые', 'Все коричневые', 'Сине-белая'];
   } else if (myGroup == 'красно-белая' || myGroup == 'красно-синяя') {
-    spisok = [
-      'Чистая синяя',
-      'Сине-коричневая',
-    ];
+    spisok = ['Чистая синяя', 'Сине-коричневая'];
   } else if (myGroup == 'красная') {
-    spisok = [
-      'Чистая синяя',
-      'Сине-коричневая',
-    ];
+    spisok = ['Чистая синяя', 'Сине-коричневая'];
   } else if (myGroup == 'красно-коричневая') {
-    spisok = [
-      'Все белые',
-      'Коричнево-белая',
-      'Сине-белая',
-    ];
+    spisok = ['Все белые', 'Коричнево-белая', 'Сине-белая'];
   } else if (myGroup == 'коричнево-белая') {
-    spisok = [
-      'Все белые',
-      'Сине-белая',
-      'Все коричневые',
-      'Красно-коричневая',
-    ];
+    spisok = ['Все белые', 'Сине-белая', 'Все коричневые', 'Красно-коричневая'];
   } else if (myGroup == 'синяя' || myGroup == 'сине-коричневая') {
     spisok = ['Чисто красная', 'Красно-белая', 'Сине-красная', 'Красно-синяя'];
   } else if (myGroup == 'сине-белая') {
-    spisok = [
-      'Все коричневые',
-      'Все белые',
-      'Красно-коричневая',
-    ];
+    spisok = ['Все коричневые', 'Все белые', 'Красно-коричневая'];
   } else if (myGroup == 'сине-красная') {
-    spisok = [
-      'Чисто синяя',
-      'Сине-коричневая',
-    ];
+    spisok = ['Чисто синяя', 'Сине-коричневая'];
   } else if (myGroup == 'бело-красная' ||
       myGroup == 'бело-синяя' ||
       myGroup == 'бело-коричневая' ||
       myGroup == 'белая') {
-    spisok = [
-      'Все коричневые',
-      'Сине-белая',
-      'Красно-коричневая',
-    ];
+    spisok = ['Все коричневые', 'Сине-белая', 'Красно-коричневая'];
   }
 
   List<Widget> spisokOfWidgets = [];
 
   for (int i = 0; i < spisok.length; i++) {
-    spisokOfWidgets.add(Text(
-      spisok[i],
-      style: const TextStyle(color: Colors.white, fontSize: 14),
-    ));
+    spisokOfWidgets.add(
+      Text(
+        spisok[i],
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+      ),
+    );
   }
   if (spisok.isNotEmpty) {
     return spisokOfWidgets;
   } else {
     return [
-      Text(
-        myGroup,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-      )
+      Text(myGroup, style: const TextStyle(color: Colors.white, fontSize: 14)),
     ];
   }
 }
@@ -171,35 +140,35 @@ cityDropdown(context, options, onSelected) {
           maxHeight: MediaQuery.of(context).size.height * 0.3,
         ),
         child: ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: options.length,
-            itemExtent: 50,
-            itemBuilder: (context, index) {
-              final option = options.elementAt(index);
-              return ListTile(
-                tileColor: grey,
-                title: Text(
-                  option.trim(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-                onTap: () => onSelected(option),
-              );
-            }),
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemCount: options.length,
+          itemExtent: 50,
+          itemBuilder: (context, index) {
+            final option = options.elementAt(index);
+            return ListTile(
+              tileColor: grey,
+              title: Text(
+                option.trim(),
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () => onSelected(option),
+            );
+          },
+        ),
       ),
     ),
   );
 }
 
 statusRow(bool online, DateTime lastOnlineTs, String pol) {
-  print(lastOnlineTs);
   int diff = lastOnlineTs.difference(DateTime.now()).inMinutes.abs();
   String compareDate = diff > 60
       ? diff / 60 > 24
-          ? diff / 60 / 24 > 7
-              ? 'больше недели'
-              : '${(diff / 60 / 24).round()} дней'
-          : '${(diff / 60).round()} часов'
+            ? diff / 60 / 24 > 7
+                  ? 'больше недели'
+                  : '${(diff / 60 / 24).round()} дней'
+            : '${(diff / 60).round()} часов'
       : '$diff минут';
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
@@ -208,9 +177,11 @@ statusRow(bool online, DateTime lastOnlineTs, String pol) {
         online
             ? 'В сети'
             : '${pol.toLowerCase() == 'м' ? "Был" : "Была"} в сети $compareDate назад',
-        style:
-            TextStyle(color: online ? Colors.green : Colors.grey, fontSize: 14),
-      )
+        style: TextStyle(
+          color: online ? Colors.green : Colors.grey,
+          fontSize: 14,
+        ),
+      ),
     ],
   );
 }
